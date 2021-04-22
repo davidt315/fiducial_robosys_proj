@@ -27,15 +27,6 @@ sudo pip install --upgrade pip
 sudo pip install -U setuptools pip
 sudo pip install --upgrade pip setuptools wheel
 sudo pip install numpy
+sudo pip install imutils
 sudo pip install "picamera[array]"
-sudo pip install opencv-python
-sudo pip install aruco
-
-
-
-
-
-
-
-
-
+sudo pip install opencv-contrib-python==4.1.0.25
