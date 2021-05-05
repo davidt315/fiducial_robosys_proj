@@ -28,6 +28,7 @@ def find_markers(frame):
 
 	result = set()
 	if ids is None:
+		vid.write(frame)
 		return result
 
 	ids = ids.flatten()
@@ -41,25 +42,27 @@ def find_markers(frame):
 		bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
 		bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
 		topLeft = (int(topLeft[0]), int(topLeft[1]))
+		# center coords
+		x_cent = int((topLeft[0] + bottomRight[0])/2.0)
+		y_cent = int((topLeft[1] + bottomRight[1])/2.0)
+		width = abs(topRight[0] - bottomLeft[0])
 
+		# annotate the frame
 		# draw the bounding box of the ArUCo detection
 		cv2.line(frame, topLeft, topRight, (0, 255, 0), 2)
 		cv2.line(frame, topRight, bottomRight, (0, 255, 0), 2)
 		cv2.line(frame, bottomRight, bottomLeft, (0, 255, 0), 2)
 		cv2.line(frame, bottomLeft, topLeft, (0, 255, 0), 2)
-
-		# center coords
-		x_cent = int((topLeft[0] + bottomRight[0])/2.0)
-		y_cent = int((topLeft[1] + bottomRight[1])/2.0)
 		cv2.circle(frame, (x_cent, y_cent), 4, (0, 0, 255), -1)
-		
 		# draw the ArUco marker ID on the frame
 		cv2.putText(frame, str(markerID), (topLeft[0], topLeft[1] - 15),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-		result.add((id, x_cent, y_cent))
-
-	return result, frame
+		# add result
+		result.add((id, x_cent, y_cent, width))
+	# write frame to vid
+	vid.write(frame)
+	return result
 
 
 def execute():
@@ -72,11 +75,8 @@ def execute():
 	camera.start_recording('testing.h264')
 	for capture in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
 		frame = capture.array
-		(markers, marked_frame) = find_markers(frame)
-		# write the frame to video
-		vid.write(marked_frame)
-
-
+		markers = find_markers(frame)
+		
 		print(markers)
 		rawCapture.truncate(0) 
 
