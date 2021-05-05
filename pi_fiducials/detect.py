@@ -74,7 +74,7 @@ def execute():
 		frame = capture.array
 		markers, marked_frame = find_markers(frame)
 		# write the frame to video
-		out.write(marked_frame)
+		vid.write(marked_frame)
 
 
 		print(markers)
@@ -87,3 +87,6 @@ def execute():
 
 	camera.stop_recording()
 	camera.close()
+	vid.release()
+
+execute()
