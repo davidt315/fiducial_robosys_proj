@@ -51,7 +51,7 @@ def find_markers(frame):
 		# center coords
 		x_cent = int((topLeft[0] + bottomRight[0])/2.0)
 		y_cent = int((topLeft[1] + bottomRight[1])/2.0)
-		cv2.circle(frame, (cX, cY), 4, (0, 0, 255), -1)
+		cv2.circle(frame, (x_cent, y_cent), 4, (0, 0, 255), -1)
 		
 		# draw the ArUco marker ID on the frame
 		cv2.putText(frame, str(markerID), (topLeft[0], topLeft[1] - 15),
@@ -72,7 +72,7 @@ def execute():
 	camera.start_recording('testing.h264')
 	for capture in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
 		frame = capture.array
-		markers, marked_frame = find_markers(frame)
+		(markers, marked_frame) = find_markers(frame)
 		# write the frame to video
 		vid.write(marked_frame)
 
