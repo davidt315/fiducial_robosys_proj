@@ -5,21 +5,28 @@ import RPi.GPIO as io
 class Robot():
     def __init__(self):
         # motor pin definitions (in1, in2, pwm)
+        print('here1')
         self.Rmotor = Motor(38, 37, 12)
+        print('here2')
         self.setup_gpio()
+        print('here3')
         self.state = IdleState()
 
     def setup_gpio(self):
 	# set motor pins
         io.setmode(io.BCM)
+        print('here4')
         io.setup(self.Rmotor.pins[0], io.OUT)
         io.setup(self.Rmotor.pins[1], io.OUT)
         io.setup(self.Rmotor.pins[2], io.OUT)
+        print('here5')
 
         # define starting output of motor pins (forward with 0 speed)
         io.output(self.Rmotor.pins[0], io.HIGH)
         io.output(self.Rmotor.pins[1], io.LOW)
+        print('here6')
         self.Rmotor.start_pwm()
+        print('here7')
 
     def change_state(self, detections):
         pass
