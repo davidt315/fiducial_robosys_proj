@@ -17,13 +17,17 @@ PARAMETERS = cv2.aruco.DetectorParameters_create() # default params
 RESOLUTION = (1008,1008)
 FRAMERATE = 30
 
+# create VideoWriter object
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+vid = cv2.VideoWriter('images/output.avi',fourcc, 20.0, RESOLUTION)
+
 def find_markers(frame):
 	gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 	corners, ids, _ = cv2.aruco.detectMarkers(gray_frame, DICTIONARY, parameters=PARAMETERS)
 
 	result = set()
 	if ids is None:
-		# vid.write(frame)
+		vid.write(frame)
 		return result
 
 	ids = ids.flatten()
@@ -56,7 +60,7 @@ def find_markers(frame):
 		# add result
 		result.add((id, x_cent, y_cent, width))
 	# write frame to vid
-	# vid.write(frame)
+	vid.write(frame)
 	return result
 
 
@@ -65,10 +69,6 @@ def execute():
 	camera = picamera.PiCamera()
 	camera.resolution = RESOLUTION # (1008,1008)
 	camera.framerate = FRAMERATE # 30
-
-	# create VideoWriter object
-	fourcc = cv2.VideoWriter_fourcc(*'XVID')
-	vid = cv2.VideoWriter('images/output.avi',fourcc, 20.0, RESOLUTION)
 
 	# create the Robot
 	car = Robot()
@@ -80,7 +80,7 @@ def execute():
 			markers = find_markers(frame)
 			
 			print(markers)
-			car.act(markers)
+			# car.act(markers)
 			rawCapture.truncate(0)
 
 	except KeyboardInterrupt:
