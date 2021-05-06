@@ -19,7 +19,7 @@ FRAMERATE = 30
 
 def find_markers(frame):
 	gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-	corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(gray_frame, DICTIONARY, parameters=PARAMETERS)
+	corners, ids, _ = cv2.aruco.detectMarkers(gray_frame, DICTIONARY, parameters=PARAMETERS)
 
 	result = set()
 	if ids is None:

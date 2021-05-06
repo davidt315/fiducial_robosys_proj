@@ -6,7 +6,7 @@ class Robot():
     def __init__(self):
         # motor pin definitions (in1, in2, pwm)
         self.Rmotor = Motor(38, 37, 12)
-	self.setup_gpio()
+        self.setup_gpio()
         self.state = IdleState()
 
     def setup_gpio(self):
@@ -36,11 +36,11 @@ class Motor():
     def start_pwm(self):
         self.pwm_control = io.PWM(self.pins[2], 1000)
         self.pwm_control.start(self.speed)
-	print("started pwm")
+        print("started pwm")
 
     def set_speed(self, percent):
         self.pwm_control.ChangeDutyCycle(percent)
-	print("speed changed")
+        print("speed changed")
 
 # super class
 class State():
@@ -64,7 +64,7 @@ class IdleState(State):
 
     def act(self, detections, Rmotor):
         Rmotor.set_speed(50)
-	print("completed action")
+        print("completed action")
 
 
 class FollowState(State):
