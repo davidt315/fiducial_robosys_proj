@@ -14,7 +14,7 @@ class Robot():
 
     def setup_gpio(self):
 	# set motor pins
-        io.setmode(io.BCM)
+        io.setmode(io.BOARD)
         print('here4')
         io.setup(self.Rmotor.pins[0], io.OUT)
         io.setup(self.Rmotor.pins[1], io.OUT)

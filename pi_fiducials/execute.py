@@ -80,7 +80,7 @@ def execute():
 			markers = find_markers(frame)
 			
 			print(markers)
-			# car.act(markers)
+			car.act(markers)
 			rawCapture.truncate(0)
 
 	except KeyboardInterrupt:
