@@ -3,6 +3,8 @@ import numpy as np
 import cv2
 import picamera
 import picamera.array
+import logging
+from state_machine import Robot
 
 # Setup fiducial dictionary and params
 DICTIONARY = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50) # our marker dictionary
@@ -15,20 +17,13 @@ PARAMETERS = cv2.aruco.DetectorParameters_create() # default params
 RESOLUTION = (1008,1008)
 FRAMERATE = 30
 
-# Define the codec and create VideoWriter object
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-vid = cv2.VideoWriter('output.avi',fourcc, 20.0, RESOLUTION)
-
 def find_markers(frame):
 	gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
 	corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(gray_frame, DICTIONARY, parameters=PARAMETERS)
-	print("corners: {corners}") 
-	print("ids: {ids}")
 
 	result = set()
 	if ids is None:
-		vid.write(frame)
+		# vid.write(frame)
 		return result
 
 	ids = ids.flatten()
@@ -61,32 +56,38 @@ def find_markers(frame):
 		# add result
 		result.add((id, x_cent, y_cent, width))
 	# write frame to vid
-	vid.write(frame)
+	# vid.write(frame)
 	return result
 
 
 def execute():
+	# create the camera
 	camera = picamera.PiCamera()
 	camera.resolution = RESOLUTION # (1008,1008)
 	camera.framerate = FRAMERATE # 30
 
+	# create VideoWriter object
+	fourcc = cv2.VideoWriter_fourcc(*'XVID')
+	vid = cv2.VideoWriter('images/output.avi',fourcc, 20.0, RESOLUTION)
+
+	# create the Robot
+	car = Robot()
+
 	rawCapture = picamera.array.PiRGBArray(camera, size=RESOLUTION)
+	try:
+		for capture in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+			frame = capture.array
+			markers = find_markers(frame)
+			
+			car.act(markers)
+			# print(markers)
+			rawCapture.truncate(0)
 
-	camera.start_recording('testing.h264')
-	for capture in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-		frame = capture.array
-		markers = find_markers(frame)
-		
-		print(markers)
-		rawCapture.truncate(0) 
+	except KeyboardInterrupt:
+		logging.exception("Keyboard interruption: exiting.")
+	finally:
+		camera.close()
+		vid.release()
 
-		# if the `q` key was pressed, break from the loop
-		key = cv2.waitKey(1) & 0xFF
-		if key == ord("q"):
-			break
-
-	camera.stop_recording()
-	camera.close()
-	vid.release()
 
 execute()
