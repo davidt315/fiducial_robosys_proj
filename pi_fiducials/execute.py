@@ -4,6 +4,7 @@ import cv2
 import picamera
 import picamera.array
 import logging
+import RPi.GPIO as io 
 from state_machine import Robot
 
 # Setup fiducial dictionary and params
@@ -80,7 +81,7 @@ def execute():
 			markers = find_markers(frame)
 			
 			print(markers)
-			# car.act(markers)
+			car.act(markers)
 			rawCapture.truncate(0)
 
 	except KeyboardInterrupt:
@@ -88,6 +89,7 @@ def execute():
 	finally:
 		camera.close()
 		vid.release()
+		io.cleanup()
 
 
 execute()
