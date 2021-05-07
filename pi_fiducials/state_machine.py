@@ -1,5 +1,5 @@
-import numpy as np
-from scipy.interpolate import interp1d 
+# import numpy as np
+# from scipy.interpolate import interp1d 
 import time
 import RPi.GPIO as io
 
@@ -13,6 +13,7 @@ class Robot():
 
     def setup_gpio(self):
 	    # set motor pins
+        io.cleanup()
         io.setmode(io.BOARD)
         io.setup(self.Rmotor.pins[0], io.OUT)
         io.setup(self.Rmotor.pins[1], io.OUT)
@@ -69,6 +70,7 @@ class State():
 # subclasses of state
 class IdleState(State):
     def __init__(self):
+        super().__init__()
         print('entering idle state')
 
     def change_state(self, detections):
@@ -76,19 +78,17 @@ class IdleState(State):
         if not self.search_bool and self.search_id in detections[0]:
             return SearchState()
         # some other condition, enter find state
-        return FindState()
+        return self
 
     def act(self, detections, Rmotor, Lmotor):
         # check if the motor speeds were already set
         if Rmotor.speed is 0 and Lmotor.speed is 0:
-            return
+            pass
 
         # set the motor speeds to 0
-        Rmotor.speed = 0
-        Lmotor.speed = 0
-        Rmotor.set_speed()
-        Lmotor.set_speed()
-        print(f"Rmotor speed: {Rmotor.speed}")
+        Rmotor.set_speed(50)
+        Lmotor.set_speed(50)
+        print(f"Rmotor speed: {Lmotor.speed}")
 
 
 
@@ -141,12 +141,10 @@ class FollowState(State):
         rate_error = (error - self.last_error) / elapsed_time
         output = self.kp*error + self.ki*self.cum_error + self.kd*rate_error
         
-        Lmotor.speed = Lmotor.base_speed - int(output)
-        Rmotor.speed = Rmotor.base_speed + int(output)
-        Lmotor.set_speed()
-        Rmotor.set_speed()
+        Lmotor.set_speed(Lmotor.base_speed - int(output))
+        Rmotor.set_speed(Rmotor.base_speed + int(output))
         
-        self.last_error = 0
+        self.last_error = error
         self.last_time = time.time()*1000.0
 
 

@@ -23,10 +23,11 @@ sudo apt-get install -y libqtgui4 libqtwebkit4 libqt4-test python3-pyqt5
 sudo apt-get install -y python3-dev
 
 # install opencv and picamera with numpy dependencies
-sudo pip install --upgrade pip
-sudo pip install -U setuptools pip
-sudo pip install --upgrade pip setuptools wheel
-sudo pip install numpy
-sudo pip install imutils
-sudo pip install "picamera[array]"
-sudo pip install opencv-contrib-python==4.1.0.25
+pip3 install --upgrade pip
+pip3 install -U setuptools pip
+pip3 install --upgrade pip setuptools wheel
+pip3 install numpy
+pip3 install imutils
+pip3 install RPi.GPIO
+pip3 install "picamera[array]"
+pip3 install opencv-contrib-python==4.1.0.25
