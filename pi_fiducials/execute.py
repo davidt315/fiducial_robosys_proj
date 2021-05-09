@@ -22,7 +22,7 @@ class RunCar():
 
 		# create VideoWriter object
 		fourcc = cv2.VideoWriter_fourcc(*'XVID')
-		self.vid = cv2.VideoWriter('images/output.avi',fourcc, 20.0, self.RESOLUTION)
+		self.vid = cv2.VideoWriter('images/output2.avi',fourcc, 20.0, self.RESOLUTION)
 
 
 	def find_markers(self, frame):
@@ -88,6 +88,8 @@ class RunCar():
 				print(markers)
 				car.change_state(markers)
 				car.act(markers)
+				print(car.state)
+				
 				rawCapture.truncate(0)
 
 		except KeyboardInterrupt:
@@ -96,6 +98,7 @@ class RunCar():
 			camera.close()
 			self.vid.release()
 			io.cleanup()
+
 
 if __name__ == "__main__":
 	script = RunCar()

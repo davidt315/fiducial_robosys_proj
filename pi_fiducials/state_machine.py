@@ -55,7 +55,7 @@ class Motor():
 # super class
 class State():
     def __init__(self):
-        # fiducial ID's 
+        # fiducial IDs 
         self.follow_id = 17
         self.search_id = 24
         self.search_bool = False
@@ -69,16 +69,21 @@ class State():
 
 # subclasses of state
 class IdleState(State):
-    def __init__(self):
+    def __init__(self, pause = 0):
         super().__init__()
-        print('entering idle state')
+        self.pause = pause
+        self.start_time = time.time()
 
     def change_state(self, detections):
+        # enables a pause in the state
+        if self.pause and (time.time() - self.start_time < self.pause):
+            return self
+
         # search fiducial detected and unsearched
         if not self.search_bool and self.search_id in detections[0]:
             return SearchState()
         # some other condition, enter find state
-        return self
+        return FindState()
 
     def act(self, detections, Rmotor, Lmotor):
         # check if the motor speeds were already set
@@ -104,16 +109,16 @@ class FollowState(State):
         self.kd = 0.0001
 
     def change_state(self, detections):
+        # search fiducial detected and not searched
+        if self.search_id in detections[0] and not self.search_bool:
+            return SearchState()
+        
         # no detections or only detect search point that has already been searched:
         if (self.follow_id not in detections[0]):
             self.count += 1
             if self.count >= 5:
                 return FindState()
             return self
-
-        # search fiducial detected and not searched
-        if self.search_id in detections[0] and not self.search_bool:
-            return SearchState()
         
         # must have seen the follow tag again, reset count and continue
         self.count = 0
@@ -148,13 +153,50 @@ class FollowState(State):
         self.last_time = time.time()*1000.0
 
 
-
         
 class SearchState(State):
     def change_state(self):
-        return IdleState()
+        return IdleState(3)
+
+
 
 class FindState(State):
-    def change_state(self):
-        return IdleState()
+    def __init__(self):
+        super().__init__()
+        self.start_time = time.time()*1000
+
+    def change_state(self, detections):
+        # search fiducial detected and not searched
+        if self.search_id in detections[0] and not self.search_bool:
+            return SearchState()
+        
+        # now see follow ID
+        if self.follow_id in detections[0]:
+            return FollowState()
+
+        # no detections or only detect search point that has already been searched:
+        return self
+
+    def act(self, detections, Rmotor, Lmotor):
+        curr_time = time.time()*1000
+        diff = curr_time - self.start_time
+
+        # turn around to start
+        if (diff < 500): 
+            Rmotor.set_speed(0)
+            Lmotor.set_speed(40)
+            return
+
+        # go towards center
+        if (diff >= 500 and diff < 2000): 
+            Rmotor.set_speed(50)
+            Lmotor.set_speed(50)
+            return
+
+        # once back in mid, just rotate to search
+        Rmotor.set_speed(0)
+        Lmotor.set_speed(30)
+
+
+        
 
