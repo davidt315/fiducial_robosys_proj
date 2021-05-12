@@ -61,7 +61,7 @@ class State():
         self.search_bool = False
         # PID inputs
         self.setpoint = 504
-        self.cutoff_width = 300
+        self.cutoff_width = 250
 
     def change_state(self, detections):
         pass
@@ -104,9 +104,9 @@ class FollowState(State):
         self.cum_error = 0
         self.last_error = 0
         self.last_time = time.time()*1000.0
-        self.kp = 0.1
-        self.ki = 0.01
-        self.kd = 0.0001
+        self.kp = 0.01
+        self.ki = 0.000000
+        self.kd = 0.00000001
 
     def change_state(self, detections):
         # search fiducial detected and not searched
@@ -141,13 +141,18 @@ class FollowState(State):
 
         x_pos = detections[1][detections[0].index(self.follow_id)]
         error = self.setpoint - x_pos
+        print(f"error: {error}")
         elapsed_time = time.time()*1000.0 - self.last_time
         self.cum_error += error * elapsed_time
         rate_error = (error - self.last_error) / elapsed_time
-        output = self.kp*error + self.ki*self.cum_error + self.kd*rate_error
+        output = self.kp*error + self.ki*self.cum_error - self.kd*rate_error
+        print(f"output: {output}")
         
         Lmotor.set_speed(Lmotor.base_speed - int(output))
         Rmotor.set_speed(Rmotor.base_speed + int(output))
+
+        print(f"Lmotorspd: {Lmotor.speed}")
+        print(f"Rmotorspd: {Rmotor.speed}")
         
         self.last_error = error
         self.last_time = time.time()*1000.0
@@ -184,18 +189,18 @@ class FindState(State):
         # turn around to start
         if (diff < 500): 
             Rmotor.set_speed(0)
-            Lmotor.set_speed(40)
+            Lmotor.set_speed(0)
             return
 
         # go towards center
         if (diff >= 500 and diff < 2000): 
-            Rmotor.set_speed(50)
-            Lmotor.set_speed(50)
+            Rmotor.set_speed(0)
+            Lmotor.set_speed(0)
             return
 
         # once back in mid, just rotate to search
         Rmotor.set_speed(0)
-        Lmotor.set_speed(30)
+        Lmotor.set_speed(0)
 
 
         
